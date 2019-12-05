@@ -49,6 +49,33 @@ app.get('/api/persons/:id', (req, res) => {
   }
 });
 
+const generateId = () => {
+  const maxId = persons.length > 0
+    ? Math.max(...persons.map(n => n.id))
+    : 0
+  return maxId + 1;
+};
+
+app.post('/api/persons', (req, res) => {
+  const body = req.body;
+
+  if(!body.name || !body.number) {
+    return res.status(400).json({
+      error: 'name or number missing'
+    });
+  }
+
+  const person = {
+    name: body.name,
+    number: body.number,
+    id: generateId()
+  };
+
+  persons = persons.concat(person);
+
+  res.json(person);
+});
+
 app.delete('/api/persons/:id', (req, res) => {
   const id = Number(req.params.id);
   const person = persons.find(person => person.id === id);
