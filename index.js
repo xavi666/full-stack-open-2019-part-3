@@ -3,6 +3,7 @@ const app = express();
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const cors = require('cors');
+const Person = require('./models/person');
 
 app.use(bodyParser.json());
 app.use(cors());
@@ -23,29 +24,6 @@ morgan.token('customToken', function (tokens, req, res) {
 
 app.use(morgan('customToken'));
 
-let persons = [
-  {
-    "name": "enric granados",
-    "number": "21312312312",
-    "id": 2
-  },
-  {
-    "name": "Vicente Ferrer",
-    "number": "9869696969",
-    "id": 6
-  },
-  {
-    "name": "Aitor Tilla",
-    "number": "98666666",
-    "id": 7
-  },
-  {
-    "name": "Miquel Marti i Pol",
-    "number": "9898989",
-    "id": 10
-  }
-];
-
 app.get('/info', (req, res) => {
   res.send(
     `<div>PhoneBook has info for ${persons.length} people</div>
@@ -53,8 +31,10 @@ app.get('/info', (req, res) => {
   );
 });
 
-app.get('/api/persons', (req, res) => {
-  res.json(persons);
+app.get('/api/persons', (request, response) => {
+  Person.find({}).then(persons => {
+    response.json(persons.map(person => person.toJSON()))
+  });
 });
 
 app.get('/api/persons/:id', (req, res) => {
