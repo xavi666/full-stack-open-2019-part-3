@@ -48,39 +48,23 @@ app.get('/api/persons/:id', (req, res) => {
   }
 });
 
-const generateId = () => {
-  const maxId = persons.length > 0
-    ? Math.max(...persons.map(n => n.id))
-    : 0
-  return maxId + 1;
-};
-
-app.post('/api/persons', (req, res) => {
-  const body = req.body;
+app.post('/api/persons', (request, response) => {
+  const body = request.body;
 
   if(!body.name || !body.number) {
-    return res.status(400).json({
+    return response.status(400).send({
       error: 'name or number missing'
     });
   }
 
-  const personExists = persons.some(person => person.name === body.name);
-
-  if (personExists) {
-    return res.status(400).json({
-      error: 'name must be unique'
-    });
-  }
-
-  const person = {
+  const person = new Person({
     name: body.name,
-    number: body.number,
-    id: generateId()
-  };
+    number: body.number
+  });
 
-  persons = persons.concat(person);
-
-  res.json(person);
+  person.save().then(savedPerson => {
+    response.json(savedPerson.toJSON());
+  });
 });
 
 app.delete('/api/persons/:id', (req, res) => {
